@@ -10,10 +10,18 @@
   --accent-soft: #e9dccb;
   --writing: #4f6b5a;
   --shadow: 0 1px 2px rgb(60 40 20 / 0.06), 0 8px 24px rgb(60 40 20 / 0.06);
-  --serif-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, 'Noto Serif SC', 'Songti SC', serif;
-  --serif: 'Source Serif 4', 'Iowan Old Style', Georgia, 'Noto Serif SC', 'Songti SC', serif;
-  --sans: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
+  /* English: Fraunces (soft, a little wonky) over Newsreader. Chinese
+     characters fall through to 站酷小薇 for titles and 霞鹜文楷 for writing. */
+  --serif-display: 'Fraunces', 'ZCOOL XiaoWei', 'LXGW WenKai Screen', Georgia, serif;
+  --serif: 'Newsreader', 'LXGW WenKai Screen', Georgia, serif;
+  --sans: 'Inter', 'LXGW WenKai Screen', system-ui, -apple-system, sans-serif;
   color-scheme: light;
+}
+
+:root:lang(zh) {
+  --serif-display: 'ZCOOL XiaoWei', 'Fraunces', 'LXGW WenKai Screen', serif;
+  --serif: 'LXGW WenKai Screen', 'Newsreader', serif;
+  --sans: 'LXGW WenKai Screen', 'Inter', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,6 +70,8 @@ body {
   font-family: var(--serif);
   font-size: 18px;
   line-height: 1.65;
+  /* Never slant Chinese characters into a fake italic. */
+  font-synthesis-style: none;
   text-rendering: optimizeLegibility;
 }
 
@@ -97,8 +107,8 @@ main {
 }
 .wordmark {
   font-family: var(--serif-display);
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 21px;
+  font-weight: 500;
   text-decoration: none;
   letter-spacing: 0.01em;
 }
@@ -188,13 +198,26 @@ main {
 
 h1,
 h2,
+.leaf-title,
+.wordmark,
+.toc-title,
+.entry-title,
+.byline,
+.prompts,
+.field > span,
+.other-ways strong,
+.turn {
+  font-variation-settings: 'SOFT' 100, 'WONK' 1;
+}
+h1,
+h2,
 .leaf-title {
   font-family: var(--serif-display);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.15;
 }
 h1 {
-  font-size: clamp(38px, 7vw, 56px);
+  font-size: clamp(34px, 6vw, 48px);
   margin: 0 0 12px;
 }
 .subtitle {
@@ -210,7 +233,7 @@ h1 {
   border-bottom: 1px solid var(--rule);
 }
 .cover h1 {
-  font-size: clamp(48px, 11vw, 84px);
+  font-size: clamp(44px, 9vw, 72px);
 }
 .began {
   margin-top: 28px;
@@ -240,7 +263,9 @@ h1 {
   text-decoration: none;
 }
 .toc-num {
-  font-family: var(--serif-display);
+  /* Roman numerals stay in Fraunces in both languages. */
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'SOFT' 100, 'WONK' 1;
   color: var(--accent);
   width: 2.2em;
   flex-shrink: 0;
@@ -248,7 +273,7 @@ h1 {
 }
 .toc-title {
   font-family: var(--serif-display);
-  font-size: 26px;
+  font-size: 23px;
 }
 .toc a:hover .toc-title {
   color: var(--accent);
@@ -292,8 +317,8 @@ h1 {
 }
 .other-ways strong {
   font-family: var(--serif-display);
-  font-size: 21px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 500;
 }
 .other-ways span {
   font-size: 14px;
@@ -309,7 +334,8 @@ h1 {
   text-align: center;
   font-family: var(--serif-display);
   font-style: italic;
-  font-size: 23px;
+  font-weight: 300;
+  font-size: 21px;
   color: var(--ink-soft);
   padding: 8px 0 28px;
   border-bottom: 1px solid var(--rule);
@@ -338,12 +364,12 @@ h1 {
   margin-bottom: 24px;
 }
 .leaf-title {
-  font-size: 34px;
+  font-size: 30px;
   margin: 0 0 4px;
 }
 .byline {
   font-family: var(--serif-display);
-  font-size: 22px;
+  font-size: 20px;
   font-style: italic;
   margin: 0;
   color: var(--accent);
@@ -409,7 +435,7 @@ h1 {
   margin: 40px 0;
 }
 .season-label {
-  font-size: 30px;
+  font-size: 26px;
   margin: 0 0 12px;
   display: flex;
   flex-wrap: wrap;
@@ -444,7 +470,7 @@ h1 {
 }
 .entry-title {
   font-family: var(--serif-display);
-  font-size: 22px;
+  font-size: 20px;
 }
 .entry-line a:hover .entry-title {
   color: var(--accent);
@@ -563,8 +589,9 @@ h1 {
 }
 .field > span {
   font-family: var(--serif-display);
-  font-size: 22px;
+  font-size: 19px;
   font-style: italic;
+  font-weight: 300;
   color: var(--ink-soft);
 }
 .history-line > span,
@@ -764,7 +791,8 @@ input:focus {
   }
 }
 
-/* Chinese: italics do not exist for CJK, and wide tracking breaks words apart. */
+/* Chinese: there is no CJK italic, wide tracking breaks words apart,
+   and both faces have a single weight. */
 :lang(zh) .subtitle,
 :lang(zh) .prompts,
 :lang(zh) .toc-intro,
@@ -776,16 +804,40 @@ input:focus {
 :lang(zh) .colophon p:first-child {
   font-style: normal;
 }
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) .leaf-title,
+:lang(zh) .wordmark,
+:lang(zh) .other-ways strong {
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
 :lang(zh) .kicker,
 :lang(zh) .section-label,
 :lang(zh) .nav,
 :lang(zh) .entry-kind {
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
+  font-size: 13px;
+}
+:lang(zh) .nav {
+  font-size: 15px;
 }
 :lang(zh) .prompts {
   font-size: 20px;
+  font-family: var(--serif);
+  color: var(--ink-soft);
+}
+:lang(zh) .subtitle,
+:lang(zh) .toc-intro {
+  color: var(--ink-soft);
 }
 :lang(zh) body,
 :lang(zh) .prose {
-  line-height: 1.85;
+  line-height: 1.9;
+}
+:lang(zh) .prose h2,
+:lang(zh) .field > span {
+  font-family: var(--serif);
+  font-size: 19px;
+  color: var(--accent);
 }
