@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { isClosed, useContent } from '../lib/content'
 import { isoDay } from '../lib/dates'
+import { useI18n } from '../lib/i18n'
 import { useSession } from '../lib/session'
 import { EntryLine, Seal } from '../components/Entry'
 
 export default function LettersPage() {
   const { entries } = useContent()
   const { canWrite } = useSession()
+  const { t } = useI18n()
   const today = isoDay()
   const letters = entries.filter((e) => e.type === 'future-letter')
   const sealed = letters.filter((e) => isClosed(e, today))
@@ -15,23 +17,23 @@ export default function LettersPage() {
   return (
     <div className="page">
       <header className="chapter-head">
-        <p className="kicker">Letters</p>
-        <h1>To the people we will be</h1>
-        <p className="subtitle">A sealed letter keeps its words to itself until the day it was meant for.</p>
+        <p className="kicker">{t.letters.kicker}</p>
+        <h1>{t.letters.title}</h1>
+        <p className="subtitle">{t.letters.subtitle}</p>
       </header>
 
       {canWrite && (
         <div className="write-row">
           <Link className="button" to="/write?kind=letter">
-            Write a letter to the future
+            {t.letters.write}
           </Link>
           <Link className="button ghost" to="/write?kind=letter&shared=1">
-            Write one together
+            {t.letters.together}
           </Link>
         </div>
       )}
 
-      {letters.length === 0 && <p className="empty">No letters yet.</p>}
+      {letters.length === 0 && <p className="empty">{t.letters.empty}</p>}
       <div className="seals">
         {sealed.map((e) => (
           <Link key={e.path} to={`/read/${e.slug}`} className="seal-link">
@@ -41,7 +43,7 @@ export default function LettersPage() {
       </div>
       {open.length > 0 && (
         <section className="season">
-          <h2 className="season-label">Opened</h2>
+          <h2 className="season-label">{t.letters.opened}</h2>
           <ul className="entry-list">{open.map((e) => <EntryLine key={e.path} e={e} />)}</ul>
         </section>
       )}

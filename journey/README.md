@@ -1,3 +1,17 @@
+# 旅程 · The Journey
+
+这个文件夹就是我们的旅程。我们写下的一切都以普通 Markdown 文件保存在这里，
+不需要任何软件也能读。网站只是阅读它的一种方式。
+
+- `sessions/`：旅程的各个阶段，每段一个文件夹。`person-a.md` 是知恩写的，`person-b.md` 是启启写的，`together.md` 是两人一起写的
+- `journal/`：日记；`experiments/`：生活实验；`final-journey/`：「成长」，回望整条路
+- `future-letters/`：写给未来的信。`sealed: true` 的信在网站上会隐藏到 `open_on` 那天。
+  **这种封存只是象征性的**：信的原文仍然在这个公开仓库里，这是我们有意的选择
+
+用 `git log --follow -p <文件>` 可以看到一篇反思随时间的变化。
+
+---
+
 # The Journey
 
 This folder is our journey. Everything we write lives here as plain Markdown,
@@ -21,7 +35,8 @@ Every file starts with a small header (YAML front matter):
 
 ```yaml
 ---
-author: person-a          # or: authors: [person-a, person-b]
+author: person-a          # person-a = 知恩 Zhien, person-b = 启启 Qiqi
+                          # shared: authors: [person-a, person-b]
 scope: individual         # individual or shared: authorship, not privacy
 date: 2026-10-18          # when it was first written
 session: seeing           # for stage reflections

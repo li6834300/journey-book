@@ -22,7 +22,8 @@ export interface Entry {
   type: EntryType
   data: FrontMatter
   body: string
-  title: string
+  /** Title from front matter, if any; otherwise the interface names it. */
+  title?: string
   authors: string[]
   scope: 'individual' | 'shared'
   stage?: string
@@ -69,12 +70,7 @@ export function toEntry(path: string, raw: string, override?: { first?: string; 
   const lastDay = str(data.updated) ?? (last && git && git.commits > 1 ? dayOf(last) : undefined)
   const revisited = lastDay && lastDay > written ? lastDay : undefined
 
-  const title =
-    str(data.title) ??
-    (type === 'journal' ? 'Journal'
-    : type === 'future-letter' ? 'A letter to the future'
-    : type === 'experiment' ? 'An experiment'
-    : (stageById(stage)?.title ?? 'Reflection'))
+  const title = str(data.title)
 
   return {
     path,

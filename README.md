@@ -8,7 +8,7 @@ small website on GitHub Pages.
 - **`journey/`**: the journey itself. Plain Markdown with YAML front matter,
   readable without this application. See [`journey/README.md`](journey/README.md).
 - **Git history**: the second timeline. Every save is one commit, with a
-  message written for people, such as `Journey: Person A reflection on Seeing`.
+  message written for people, such as `旅程：知恩关于「看见」的反思`.
 - **`src/`**: the React + Vite website that reads the journey as a book and,
   for the two of us, writes to it.
 
@@ -65,8 +65,21 @@ device: *Your reflection is still saved on this device.*
 Everything committed here is public.
 
 The stages, their prompts, the people, and the names of chapters in time
-(for example `"winter-2026": "Learning to notice"`) live in
-[`journey/config.json`](journey/config.json).
+(for example `"winter-2026": { "zh": "学着留心", "en": "Learning to notice" }`)
+live in [`journey/config.json`](journey/config.json).
+
+## Languages
+
+The interface is in Chinese by default (`"defaultLanguage": "zh"`), with an
+EN / 中文 switch in the header that each device remembers. Every text in
+`config.json` (stage titles, intros, prompts, names, chapters) can be a plain
+string or a `{ "zh": …, "en": … }` pair.
+
+Reflections are never translated. They stay in the language they were
+written in. When a reflection is revisited in the other language, headings
+already written in either language are recognized and kept as they are.
+Commit messages follow the language of the writer's interface, for example
+`旅程：知恩关于「看见」的反思` or `Journey: Zhien reflection on Seeing`.
 
 ### About sealed letters
 
@@ -103,9 +116,9 @@ do not appear for them.
    `journey/config.json` (owner, repo, branch) to match.
 2. In the repository settings, go to **Pages** and set **Source** to
    **GitHub Actions**.
-3. Edit `people` in `journey/config.json` with real names, plus each person's
-   GitHub login. The login is optional; it lets the site recognize who is
-   writing.
+3. Edit `people` in `journey/config.json` (currently 知恩 / Zhien and
+   启启 / Qiqi), plus each person's GitHub login. The login is optional; it
+   lets the site recognize who is writing.
 4. Each writer opens the site, follows *Our writing mode* in the footer, and
    connects with their own token.
 

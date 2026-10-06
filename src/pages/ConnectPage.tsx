@@ -1,15 +1,19 @@
 import { useState, type FormEvent } from 'react'
-import { config, nameOf, repo, repoUrl } from '../lib/config'
+import { config, repo, repoUrl } from '../lib/config'
 import { draftKeys } from '../lib/drafts'
 import { AccessError, NetworkError } from '../lib/github'
+import { useI18n } from '../lib/i18n'
 import { useSession } from '../lib/session'
 
 export default function ConnectPage() {
   const { token, login, me, setMe, connect, forget } = useSession()
+  const { t, L, name } = useI18n()
+  const c = t.connect
   const [value, setValue] = useState('')
   const [remember, setRemember] = useState(true)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const repoName = `${repo.owner}/${repo.repo}`
 
   async function submit(ev: FormEvent) {
     ev.preventDefault()
@@ -17,12 +21,12 @@ export default function ConnectPage() {
     setMessage(null)
     try {
       const r = await connect(value.trim(), remember)
-      setMessage(r.canPush ? null : `That access belongs to ${r.login}, but it cannot write to our journey.`)
+      setMessage(r.canPush ? null : c.cannotWrite(r.login))
     } catch (e) {
       setMessage(
-        e instanceof NetworkError ? 'This device seems to be offline. Try again when you are connected.'
-        : e instanceof AccessError && e.message === 'repo' ? `That access cannot see ${repo.owner}/${repo.repo}.`
-        : 'GitHub did not accept that access token.',
+        e instanceof NetworkError ? c.offline
+        : e instanceof AccessError && e.message === 'repo' ? c.cannotSee(repoName)
+        : c.rejected,
       )
     } finally {
       setValue('')
@@ -35,66 +39,63 @@ export default function ConnectPage() {
     return (
       <div className="page narrow">
         <header className="chapter-head">
-          <p className="kicker">This device</p>
-          <h1>Connected to our journey</h1>
-          <p className="subtitle">Signed in to GitHub as {login}.</p>
+          <p className="kicker">{c.deviceKicker}</p>
+          <h1>{c.connected}</h1>
+          <p className="subtitle">{c.signedIn(login ?? '')}</p>
         </header>
         <fieldset className="who">
-          <legend>Who is writing on this device?</legend>
+          <legend>{c.who}</legend>
           {config.people.map((p) => (
             <label key={p.id}>
-              <input type="radio" name="me" checked={me === p.id} onChange={() => setMe(p.id)} /> {p.name}
+              <input type="radio" name="me" checked={me === p.id} onChange={() => setMe(p.id)} /> {L(p.name)}
             </label>
           ))}
         </fieldset>
-        {me && <p className="note">Reflections written here will be signed {nameOf(me)}.</p>}
+        {me && <p className="note">{c.signedAs(name(me))}</p>}
         <div className="forget">
           <button className="button ghost" onClick={forget}>
-            Forget this device
+            {c.forget}
           </button>
           <p className="note">
-            Removes the access stored in this browser. Nothing in the journey is deleted.
-            {drafts > 0 && ` ${drafts === 1 ? 'One unsaved draft stays' : `${drafts} unsaved drafts stay`} on this device.`}
+            {c.forgetNote}
+            {drafts > 0 && c.draftsStay(drafts)}
           </p>
         </div>
       </div>
     )
   }
 
+  const [s1, s2, s3, s4] = c.steps
   return (
     <div className="page narrow">
       <header className="chapter-head">
-        <p className="kicker">Our writing mode</p>
-        <h1>Connect to our journey</h1>
-        <p className="subtitle">
-          Anyone can read this book. To save reflections into our journey repository from this device, connect your GitHub account.
-        </p>
+        <p className="kicker">{c.kicker}</p>
+        <h1>{c.title}</h1>
+        <p className="subtitle">{c.intro}</p>
       </header>
 
       <ol className="steps">
         <li>
-          Open{' '}
+          {s1[0]}
           <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">
-            GitHub → Settings → Fine-grained tokens → Generate new token
+            {s1[1]}
           </a>
-          .
+          {s1[2]}
         </li>
         <li>
-          Under <em>Repository access</em>, choose <em>Only select repositories</em> and pick{' '}
+          {s2[0]}
           <a href={repoUrl} target="_blank" rel="noreferrer">
-            {repo.owner}/{repo.repo}
+            {repoName}
           </a>
-          , and nothing else.
+          {s2[2]}
         </li>
-        <li>
-          Under <em>Repository permissions</em>, set <em>Contents</em> to <em>Read and write</em>. Leave every other permission off.
-        </li>
-        <li>Generate the token, copy it, and paste it below.</li>
+        <li>{s3[0]}</li>
+        <li>{s4[0]}</li>
       </ol>
 
       <form className="connect" onSubmit={submit}>
         <label>
-          GitHub access token
+          {c.tokenLabel}
           <input
             type="password"
             autoComplete="off"
@@ -106,18 +107,15 @@ export default function ConnectPage() {
           />
         </label>
         <label className="check">
-          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember on this device
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {c.remember}
         </label>
         <button className="button" disabled={busy || !value.trim()}>
-          {busy ? 'Checking…' : 'Connect'}
+          {busy ? c.checking : c.connect}
         </button>
         {message && <p className="notice">{message}</p>}
       </form>
 
-      <p className="note">
-        The token stays in this browser only. It is never written into the journey, never sent anywhere except GitHub, and
-        you can remove it at any time with <em>Forget this device</em>. Each device connects separately.
-      </p>
+      <p className="note">{c.privacy}</p>
     </div>
   )
 }

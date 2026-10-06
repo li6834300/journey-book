@@ -2,14 +2,22 @@ import { Link } from 'react-router-dom'
 import { config } from '../lib/config'
 import { journeyBegan, useContent } from '../lib/content'
 import { chapterOf, isoDay } from '../lib/dates'
+import { useI18n } from '../lib/i18n'
 
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
 
 export default function HomePage() {
   const { entries } = useContent()
+  const { t, L, lang } = useI18n()
   const began = journeyBegan().slice(0, 7)
-  const now = chapterOf(isoDay(), began, config.chapters)
-  const first = chapterOf(`${began}-01`, began, config.chapters)
+  const now = chapterOf(isoDay(), began, config.chapters, lang)
+  const first = chapterOf(`${began}-01`, began, config.chapters, lang)
+  const ways: [string, string[]][] = [
+    ['/time', t.home.byTime],
+    ['/people', t.home.byPerson],
+    ['/notebook', t.home.notebook],
+    ['/letters', t.home.letters],
+  ]
 
   return (
     <div className="page">
@@ -18,16 +26,14 @@ export default function HomePage() {
           {now.label}
           {now.name ? ` · ${now.name}` : ''}
         </p>
-        <h1>{config.title}</h1>
-        <p className="subtitle">{config.subtitle}</p>
-        <p className="began">
-          Begun {first.label}
-        </p>
+        <h1>{L(config.title)}</h1>
+        <p className="subtitle">{L(config.subtitle)}</p>
+        <p className="began">{t.home.begun(first.label)}</p>
       </section>
 
       <section className="contents" aria-labelledby="contents-h">
         <h2 id="contents-h" className="section-label">
-          Contents
+          {t.home.contents}
         </h2>
         <ol className="toc">
           {config.stages.map((s, i) => {
@@ -36,11 +42,11 @@ export default function HomePage() {
               <li key={s.id}>
                 <Link to={`/stage/${s.id}`}>
                   <span className="toc-num">{NUMERALS[i]}</span>
-                  <span className="toc-title">{s.title}</span>
+                  <span className="toc-title">{L(s.title)}</span>
                   <span className="toc-dots" aria-hidden />
-                  <span className="toc-count">{n === 0 ? 'prompts, for now' : n === 1 ? 'one reflection' : `${n} reflections`}</span>
+                  <span className="toc-count">{t.home.count(n)}</span>
                 </Link>
-                <p className="toc-intro">{s.intro}</p>
+                <p className="toc-intro">{L(s.intro)}</p>
               </li>
             )
           })}
@@ -48,22 +54,12 @@ export default function HomePage() {
       </section>
 
       <section className="other-ways">
-        <Link to="/time">
-          <strong>By time</strong>
-          <span>Everything in the order it was written</span>
-        </Link>
-        <Link to="/people">
-          <strong>By person</strong>
-          <span>Each of us, and what we wrote together</span>
-        </Link>
-        <Link to="/notebook">
-          <strong>Notebook</strong>
-          <span>Journal entries and small experiments</span>
-        </Link>
-        <Link to="/letters">
-          <strong>Letters</strong>
-          <span>Written now, to be opened later</span>
-        </Link>
+        {ways.map(([to, [title, desc]]) => (
+          <Link key={to} to={to}>
+            <strong>{title}</strong>
+            <span>{desc}</span>
+          </Link>
+        ))}
       </section>
     </div>
   )

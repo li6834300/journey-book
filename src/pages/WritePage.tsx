@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { config, nameOf, stageById } from '../lib/config'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { config, pick, stageById, variants, type Lang } from '../lib/config'
 import { useContent } from '../lib/content'
-import { isoDay, longDate } from '../lib/dates'
+import { isoDay } from '../lib/dates'
+import { useI18n } from '../lib/i18n'
 import { clearDraft, loadDraft, saveDraft } from '../lib/drafts'
 import { AccessError, ConflictError, getFile, NetworkError, putFile } from '../lib/github'
 import { commitMessage, defaultOpenOn, experimentPath, newSpec, specFromPath, type Kind, type WriteSpec } from '../lib/kinds'
@@ -33,26 +34,32 @@ interface Conflict {
   reviewing: boolean
 }
 
-const emptyForm = (spec: WriteSpec, today: string): Form => ({
+const promptVersions = (spec: WriteSpec, lang: Lang) =>
+  spec.prompts.map((p) => {
+    const own = pick(p, lang)
+    return [own, ...variants(p).filter((v) => v !== own)]
+  })
+
+const emptyForm = (spec: WriteSpec, today: string, lang: Lang): Form => ({
   title: '',
   intro: '',
-  sections: spec.prompts.map((heading) => ({ heading, text: '' })),
+  sections: spec.prompts.map((p) => ({ heading: pick(p, lang), text: '' })),
   body: '',
   openOn: defaultOpenOn(today),
   sealed: true,
   note: '',
 })
 
-function formFromDoc(spec: WriteSpec, raw: string, today: string): { form: Form; data: FrontMatter } {
+function formFromDoc(spec: WriteSpec, raw: string, today: string, lang: Lang): { form: Form; data: FrontMatter } {
   const { data, body } = parseDoc(raw)
   const { intro, sections } = splitSections(body)
   return {
     data,
     form: {
-      ...emptyForm(spec, today),
+      ...emptyForm(spec, today, lang),
       title: data.title ? String(data.title) : '',
       intro: spec.prompts.length ? intro : '',
-      sections: spec.prompts.length ? mergeWithPrompts(spec.prompts, sections) : [],
+      sections: spec.prompts.length ? mergeWithPrompts(promptVersions(spec, lang), sections) : [],
       body: spec.prompts.length ? '' : body,
       openOn: data.open_on ? String(data.open_on) : defaultOpenOn(today),
       sealed: data.sealed !== false,
@@ -63,6 +70,7 @@ function formFromDoc(spec: WriteSpec, raw: string, today: string): { form: Form;
 export default function WritePage() {
   const [params] = useSearchParams()
   const { token, me, canWrite } = useSession()
+  const { t } = useI18n()
   const spec = useMemo(() => {
     const path = params.get('path')
     if (path) return specFromPath(path)
@@ -70,22 +78,26 @@ export default function WritePage() {
   }, [params, me])
 
   if (!canWrite || !token || !me) return <Navigate to="/connect" replace />
-  if (!spec) return <p className="page empty">There is nothing to write here.</p>
+  if (!spec) return <p className="page empty">{t.write.nothing}</p>
   return <Editor key={spec.draftKey} spec={spec} token={token} me={me} />
 }
 
 function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: string; me: string }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { remember } = useContent()
+  const { t, L, lang, name, date: fmt } = useI18n()
+  const w = t.write
   const today = isoDay()
-  const [spec, setSpec] = useState(initialSpec)
-  const [form, setForm] = useState<Form>(() => emptyForm(initialSpec, today))
+  const spec = initialSpec
+  const [form, setForm] = useState<Form>(() => emptyForm(initialSpec, today, lang))
   const [data, setData] = useState<FrontMatter>({})
   /** The repository version this draft is based on: null means "new file". */
   const [baseSha, setBaseSha] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [restored, setRestored] = useState<string | null>(null)
-  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  // A new experiment gets its file name on first save; the editor reopens on that path and keeps the confirmation.
+  const [status, setStatus] = useState<Status>(() => (location.state as { saved?: Status } | null)?.saved ?? { kind: 'idle' })
   const [conflict, setConflict] = useState<Conflict | null>(null)
   const [preview, setPreview] = useState(false)
   const dirty = useRef(false)
@@ -103,7 +115,7 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
       }
       if (cancelled) return
       if (live) {
-        const parsed = formFromDoc(spec, live.content, today)
+        const parsed = formFromDoc(spec, live.content, today, lang)
         setForm(parsed.form)
         setData(parsed.data)
         setBaseSha(live.sha)
@@ -115,12 +127,14 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
         setRestored(draft.savedAt)
         dirty.current = true
       }
-      if (!reached && !draft) setStatus({ kind: 'error', text: 'Could not reach the journey just now. You can still write; it stays on this device until it can be saved.' })
+      if (!reached && !draft) setStatus({ kind: 'error', text: w.unreachable })
       setLoaded(true)
     })()
     return () => {
       cancelled = true
     }
+    // Language is read once when opening; switching it must not reload the draft.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spec, token, today])
 
   // Keep a local draft while writing, so nothing is lost before it reaches GitHub.
@@ -163,12 +177,12 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
   }
 
   async function save() {
-    if (!body.trim()) return setStatus({ kind: 'error', text: 'There is nothing written yet.' })
-    if (spec.kind === 'experiment' && !form.title.trim()) return setStatus({ kind: 'error', text: 'Give the experiment a name first.' })
+    if (!body.trim()) return setStatus({ kind: 'error', text: w.empty })
+    if (spec.kind === 'experiment' && !form.title.trim()) return setStatus({ kind: 'error', text: w.needName })
     const path = spec.path ?? experimentPath(today, form.title)
     saveDraft(spec.draftKey, form, baseSha)
     setStatus({ kind: 'saving' })
-    const message = commitMessage({ spec, me, isNew, date, title: form.title.trim(), openOn: form.openOn, note: form.note })
+    const message = commitMessage({ spec, me, lang, isNew, date, title: form.title.trim(), openOn: form.openOn, note: form.note })
     try {
       const live = await getFile(token, path)
       if ((live?.sha ?? null) !== baseSha) {
@@ -183,12 +197,9 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
       setRestored(null)
       remember(path, doc)
       setForm((f) => ({ ...f, note: '' }))
-      setStatus({ kind: 'saved', message, commit: res.commit, url: res.url })
-      if (!spec.path) {
-        const fixed = specFromPath(path)!
-        setSpec(fixed)
-        navigate(`/write?path=${encodeURIComponent(path)}`, { replace: true })
-      }
+      const saved: Status = { kind: 'saved', message, commit: res.commit, url: res.url }
+      setStatus(saved)
+      if (!spec.path) navigate(`/write?path=${encodeURIComponent(path)}`, { replace: true, state: { saved } })
     } catch (e) {
       if (e instanceof NetworkError) setStatus({ kind: 'offline' })
       else if (e instanceof ConflictError) {
@@ -196,8 +207,8 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
         setConflict({ latest: live?.content ?? '', latestSha: live?.sha ?? null, reviewing: false })
         setStatus({ kind: 'idle' })
       } else if (e instanceof AccessError)
-        setStatus({ kind: 'error', text: 'This device is not allowed to save right now. Your words are kept here; reconnect on the "This device" page.' })
-      else setStatus({ kind: 'error', text: 'Saving did not work this time. Your reflection is still saved on this device.' })
+        setStatus({ kind: 'error', text: w.noAccess })
+      else setStatus({ kind: 'error', text: w.failed })
     }
   }
 
@@ -205,42 +216,40 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
     const text = spec.prompts.length ? joinSections(form.intro, form.sections) : form.body
     try {
       await navigator.clipboard.writeText(text)
-      setStatus({ kind: 'error', text: 'Your draft is copied. It is also still kept on this device.' })
+      setStatus({ kind: 'error', text: w.copied })
     } catch {
-      setStatus({ kind: 'error', text: 'Copying was not allowed by this browser. Your draft is still kept on this device.' })
+      setStatus({ kind: 'error', text: w.copyBlocked })
     }
   }
 
-  if (!loaded) return <p className="page empty">Opening…</p>
+  if (!loaded) return <p className="page empty">{w.opening}</p>
 
-  const heading =
-    spec.kind === 'session'
-      ? spec.scope === 'shared' ? `${stage?.title}, together` : `${stage?.title}, ${nameOf(me)}`
-      : spec.scope === 'shared' ? `${spec.heading}, together` : `${spec.heading}, ${nameOf(me)}`
+  const what = spec.kind === 'session' ? L(stage?.title) : spec.kind === 'journal' ? w.journal : spec.kind === 'letter' ? w.letter : w.experiment
+  const heading = w.heading(what, spec.scope === 'shared' ? w.together : name(me))
 
   return (
     <div className="page writing">
       <header className="chapter-head">
-        <p className="kicker">{isNew ? 'Writing' : 'Revisiting'}</p>
+        <p className="kicker">{isNew ? w.writing : w.revisiting}</p>
         <h1>{heading}</h1>
-        {spec.kind === 'letter' && <p className="subtitle">A sealed letter is hidden on the website until its day. The words still live in the repository.</p>}
-        {!isNew && <p className="subtitle">First written {longDate(date)}</p>}
+        {spec.kind === 'letter' && <p className="subtitle">{w.letterNote}</p>}
+        {!isNew && <p className="subtitle">{w.firstWritten(fmt(date))}</p>}
       </header>
 
       {restored && (
-        <p className="notice soft">Restored your unsaved draft from this device ({longDate(restored)}).</p>
+        <p className="notice soft">{w.restored(fmt(restored))}</p>
       )}
 
       {(spec.kind === 'experiment' || spec.kind === 'journal') && (
         <label className="field">
-          <span>{spec.kind === 'experiment' ? 'What shall we call this experiment?' : 'A title (optional)'}</span>
+          <span>{spec.kind === 'experiment' ? w.experimentName : w.titleOptional}</span>
           <input value={form.title} onChange={(e) => update({ title: e.target.value })} disabled={spec.kind === 'experiment' && !isNew} />
         </label>
       )}
 
       {preview ? (
         <div className="leaf">
-          <Prose>{body || '_Nothing written yet._'}</Prose>
+          <Prose>{body || w.nothingYet}</Prose>
         </div>
       ) : spec.prompts.length ? (
         <>
@@ -257,7 +266,7 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
         </>
       ) : (
         <label className="field">
-          <span>{spec.kind === 'letter' ? 'Dear future us,' : 'What is on your mind today?'}</span>
+          <span>{spec.kind === 'letter' ? w.dear : w.onMind}</span>
           <textarea rows={16} value={form.body} onChange={(e) => update({ body: e.target.value })} />
         </label>
       )}
@@ -265,55 +274,55 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
       {spec.kind === 'letter' && (
         <div className="letter-options">
           <label className="field inline">
-            <span>Intended to be opened</span>
+            <span>{w.openOn}</span>
             <input type="date" value={form.openOn} min={today} onChange={(e) => update({ openOn: e.target.value })} />
           </label>
           <label className="check">
-            <input type="checkbox" checked={form.sealed} onChange={(e) => update({ sealed: e.target.checked })} /> Seal this letter
+            <input type="checkbox" checked={form.sealed} onChange={(e) => update({ sealed: e.target.checked })} /> {w.seal}
           </label>
         </div>
       )}
 
       <label className="field history-line">
-        <span>A line for our history (optional)</span>
+        <span>{w.historyLine}</span>
         <input
           value={form.note}
-          placeholder={spec.kind === 'session' ? 'adds thoughts on childhood rules' : ''}
+          placeholder={spec.kind === 'session' ? w.historyPlaceholder : ''}
           onChange={(e) => update({ note: e.target.value })}
         />
       </label>
 
       <div className="save-row">
         <button className="button" onClick={save} disabled={status.kind === 'saving'}>
-          {status.kind === 'saving' ? 'Saving…' : 'Save to our journey'}
+          {status.kind === 'saving' ? w.saving : w.save}
         </button>
         <button className="button ghost" onClick={() => setPreview((p) => !p)}>
-          {preview ? 'Keep writing' : 'Preview'}
+          {preview ? w.keepWriting : w.preview}
         </button>
         <Link className="quiet-action" to={stage ? `/stage/${stage.id}` : spec.kind === 'letter' ? '/letters' : '/notebook'}>
-          Back to the book
+          {w.back}
         </Link>
       </div>
 
       <div aria-live="polite">
         {status.kind === 'saved' && (
           <div className="notice saved">
-            <p>Saved to our journey.</p>
+            <p>{w.saved}</p>
             <details>
-              <summary>Details</summary>
+              <summary>{w.details}</summary>
               <p>
                 {status.message}
                 <br />
                 <a href={status.url} target="_blank" rel="noreferrer">
                   {status.commit.slice(0, 7)}
                 </a>{' '}
-                · the public site updates after GitHub Pages rebuilds, usually within a few minutes.
+                · {w.rebuild}
               </p>
             </details>
           </div>
         )}
         {status.kind === 'offline' && (
-          <p className="notice">Your reflection is still saved on this device. You can try again when you are online.</p>
+          <p className="notice">{w.offline}</p>
         )}
         {status.kind === 'error' && <p className="notice">{status.text}</p>}
       </div>
@@ -321,12 +330,12 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
       {conflict && (
         <div className="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="conflict-h">
           <div className="dialog">
-            <h2 id="conflict-h">This reflection changed since you opened it.</h2>
-            <p>Someone saved a newer version. Nothing has been overwritten, and your draft is safe on this device.</p>
+            <h2 id="conflict-h">{w.conflictTitle}</h2>
+            <p>{w.conflictBody}</p>
             {conflict.reviewing && (
               <div className="latest">
-                <p className="kicker">The latest version</p>
-                {conflict.latest ? <Prose>{parseDoc(conflict.latest).body}</Prose> : <p>The file was removed.</p>}
+                <p className="kicker">{w.latest}</p>
+                {conflict.latest ? <Prose>{parseDoc(conflict.latest).body}</Prose> : <p>{w.removed}</p>}
                 <button
                   className="button ghost"
                   onClick={() => {
@@ -338,21 +347,21 @@ function Editor({ spec: initialSpec, token, me }: { spec: WriteSpec; token: stri
                     setConflict(null)
                   }}
                 >
-                  I have read it — keep my draft as the newer version
+                  {w.keepMine}
                 </button>
               </div>
             )}
             <div className="dialog-actions">
               {!conflict.reviewing && (
                 <button className="button" onClick={() => setConflict({ ...conflict, reviewing: true })}>
-                  Review latest version
+                  {w.review}
                 </button>
               )}
               <button className="button ghost" onClick={copyDraft}>
-                Copy my draft
+                {w.copy}
               </button>
               <button className="button ghost" onClick={() => setConflict(null)}>
-                Cancel
+                {w.cancel}
               </button>
             </div>
           </div>

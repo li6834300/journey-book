@@ -1,14 +1,16 @@
 import { config } from '../lib/config'
 import { journeyBegan, useContent, type Entry } from '../lib/content'
 import { chapterOf } from '../lib/dates'
+import { useI18n } from '../lib/i18n'
 import { EntryLine } from '../components/Entry'
 
 export default function TimelinePage() {
   const { entries } = useContent()
+  const { t, lang } = useI18n()
   const began = journeyBegan().slice(0, 7)
   const chapters: { key: string; label: string; name?: string; items: Entry[] }[] = []
   for (const e of entries) {
-    const c = chapterOf(e.written, began, config.chapters)
+    const c = chapterOf(e.written, began, config.chapters, lang)
     const last = chapters[chapters.length - 1]
     if (last?.key === c.key) last.items.push(e)
     else chapters.push({ ...c, items: [e] })
@@ -17,10 +19,10 @@ export default function TimelinePage() {
   return (
     <div className="page">
       <header className="chapter-head">
-        <p className="kicker">By time</p>
-        <h1>As it was written</h1>
+        <p className="kicker">{t.time.kicker}</p>
+        <h1>{t.time.title}</h1>
       </header>
-      {chapters.length === 0 && <p className="empty">The first page has not been written yet.</p>}
+      {chapters.length === 0 && <p className="empty">{t.time.empty}</p>}
       {chapters.map((c) => (
         <section key={c.key} className="season">
           <h2 className="season-label">

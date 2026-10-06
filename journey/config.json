@@ -1,6 +1,10 @@
 {
-  "title": "Our Journey",
-  "subtitle": "A book we are writing together, one reflection at a time.",
+  "title": { "zh": "我们的旅程", "en": "Our Journey" },
+  "subtitle": {
+    "zh": "一本我们一起写的书，一次一篇反思。",
+    "en": "A book we are writing together, one reflection at a time."
+  },
+  "defaultLanguage": "zh",
   "began": "2026-10",
   "repository": {
     "owner": "li6834300",
@@ -8,96 +12,96 @@
     "branch": "main"
   },
   "people": [
-    { "id": "person-a", "name": "Person A", "github": "" },
-    { "id": "person-b", "name": "Person B", "github": "" }
+    { "id": "person-a", "name": { "zh": "知恩", "en": "Zhien" }, "github": "li6834300" },
+    { "id": "person-b", "name": { "zh": "启启", "en": "Qiqi" }, "github": "" }
   ],
   "stages": [
     {
       "id": "seeing",
-      "title": "Seeing",
       "dir": "sessions/01-seeing",
-      "intro": "Before we change anything, we learn to look.",
+      "title": { "zh": "看见", "en": "Seeing" },
+      "intro": { "zh": "在改变任何事情之前，先学会看。", "en": "Before we change anything, we learn to look." },
       "prompts": [
-        "What did I notice today?",
-        "What do I still not know?",
-        "What do I want to carry with me?"
+        { "zh": "今天我注意到了什么？", "en": "What did I notice today?" },
+        { "zh": "我还有什么不知道？", "en": "What do I still not know?" },
+        { "zh": "我想把什么带在身边？", "en": "What do I want to carry with me?" }
       ]
     },
     {
       "id": "understanding",
-      "title": "Understanding",
       "dir": "sessions/02-understanding",
-      "intro": "Looking again, more slowly, at what we saw.",
+      "title": { "zh": "理解", "en": "Understanding" },
+      "intro": { "zh": "放慢一些，再看一遍我们看见的。", "en": "Looking again, more slowly, at what we saw." },
       "prompts": [
-        "What did I come to understand about you?",
-        "What did I come to understand about myself?",
-        "Where did we misunderstand each other, and what was underneath?"
+        { "zh": "我对你有了什么新的理解？", "en": "What did I come to understand about you?" },
+        { "zh": "我对自己有了什么新的理解？", "en": "What did I come to understand about myself?" },
+        { "zh": "我们在哪里误解了彼此？误解底下是什么？", "en": "Where did we misunderstand each other, and what was underneath?" }
       ]
     },
     {
       "id": "voices-we-carry",
-      "title": "The Voices We Carry",
       "dir": "sessions/03-voices-we-carry",
-      "intro": "The rules and voices we brought with us from before.",
+      "title": { "zh": "我们带着的声音", "en": "The Voices We Carry" },
+      "intro": { "zh": "那些从过去一路带来的规则与声音。", "en": "The rules and voices we brought with us from before." },
       "prompts": [
-        "Which voices from my childhood still speak when I decide?",
-        "Which rules did I inherit without choosing them?",
-        "Which voice do I want to keep, and which can I set down?"
+        { "zh": "童年的哪些声音，仍在我做决定时开口？", "en": "Which voices from my childhood still speak when I decide?" },
+        { "zh": "哪些规则，是我没有选择就继承下来的？", "en": "Which rules did I inherit without choosing them?" },
+        { "zh": "哪个声音我想留下，哪个可以放下？", "en": "Which voice do I want to keep, and which can I set down?" }
       ]
     },
     {
       "id": "desire",
-      "title": "Desire",
       "dir": "sessions/04-desire",
-      "intro": "Saying plainly what we want.",
+      "title": { "zh": "渴望", "en": "Desire" },
+      "intro": { "zh": "坦白地说出我们想要什么。", "en": "Saying plainly what we want." },
       "prompts": [
-        "What do I want, if I let myself say it plainly?",
-        "What do I want for us?",
-        "What am I afraid will happen if I want it out loud?"
+        { "zh": "如果允许自己直说，我想要什么？", "en": "What do I want, if I let myself say it plainly?" },
+        { "zh": "我为我们想要什么？", "en": "What do I want for us?" },
+        { "zh": "如果把想要说出口，我害怕会发生什么？", "en": "What am I afraid will happen if I want it out loud?" }
       ]
     },
     {
       "id": "choosing",
-      "title": "Choosing",
       "dir": "sessions/05-choosing",
-      "intro": "Every choice is also a letting go.",
+      "title": { "zh": "选择", "en": "Choosing" },
+      "intro": { "zh": "每一次选择，也是一次放下。", "en": "Every choice is also a letting go." },
       "prompts": [
-        "What are we choosing?",
-        "What are we choosing not to do?",
-        "What will tell us whether it was the right choice?"
+        { "zh": "我们在选择什么？", "en": "What are we choosing?" },
+        { "zh": "我们选择不做什么？", "en": "What are we choosing not to do?" },
+        { "zh": "什么会告诉我们，这个选择对不对？", "en": "What will tell us whether it was the right choice?" }
       ]
     },
     {
       "id": "living-experiment",
-      "title": "Living Experiment",
       "dir": "sessions/06-living-experiment",
-      "intro": "Trying something small, and paying attention to what happens.",
+      "title": { "zh": "生活实验", "en": "Living Experiment" },
+      "intro": { "zh": "试一件小事，留心会发生什么。", "en": "Trying something small, and paying attention to what happens." },
       "prompts": [
-        "What did we try?",
-        "What happened, honestly?",
-        "What will we keep, change, or let go?"
+        { "zh": "我们尝试了什么？", "en": "What did we try?" },
+        { "zh": "诚实地说，发生了什么？", "en": "What happened, honestly?" },
+        { "zh": "我们要保留、改变，还是放下什么？", "en": "What will we keep, change, or let go?" }
       ]
     },
     {
       "id": "growing",
-      "title": "Growing",
       "dir": "final-journey",
-      "intro": "Looking back over the whole road.",
+      "title": { "zh": "成长", "en": "Growing" },
+      "intro": { "zh": "回望走过的整条路。", "en": "Looking back over the whole road." },
       "prompts": [
-        "Who was I when we began?",
-        "What has changed between us?",
-        "What do I want to remember from this journey?"
+        { "zh": "刚开始时，我是怎样的人？", "en": "Who was I when we began?" },
+        { "zh": "我们之间有了什么变化？", "en": "What has changed between us?" },
+        { "zh": "这段旅程里，我想记住什么？", "en": "What do I want to remember from this journey?" }
       ]
     }
   ],
   "experimentPrompts": [
-    "What are we trying?",
-    "Why now?",
-    "What happened?",
-    "What did we learn?"
+    { "zh": "我们在尝试什么？", "en": "What are we trying?" },
+    { "zh": "为什么是现在？", "en": "Why now?" },
+    { "zh": "发生了什么？", "en": "What happened?" },
+    { "zh": "我们学到了什么？", "en": "What did we learn?" }
   ],
   "chapters": {
-    "2026-10": "The beginning",
-    "winter-2026": "Learning to notice"
+    "2026-10": { "zh": "开始", "en": "The beginning" },
+    "winter-2026": { "zh": "学着留心", "en": "Learning to notice" }
   }
 }

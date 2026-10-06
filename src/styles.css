@@ -10,9 +10,9 @@
   --accent-soft: #e9dccb;
   --writing: #4f6b5a;
   --shadow: 0 1px 2px rgb(60 40 20 / 0.06), 0 8px 24px rgb(60 40 20 / 0.06);
-  --serif-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
-  --serif: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --serif-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, 'Noto Serif SC', 'Songti SC', serif;
+  --serif: 'Source Serif 4', 'Iowan Old Style', Georgia, 'Noto Serif SC', 'Songti SC', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
   color-scheme: light;
 }
 
@@ -120,8 +120,27 @@ main {
   color: var(--ink);
   box-shadow: inset 0 -1px 0 var(--accent);
 }
-.mode {
+.masthead-end {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lang {
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.lang:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+.mode {
   display: inline-flex;
   border: 1px solid var(--rule);
   border-radius: 999px;
@@ -725,7 +744,7 @@ input:focus {
   body {
     font-size: 17px;
   }
-  .mode {
+  .masthead-end {
     margin-left: 0;
   }
   .entry-line a {
@@ -743,4 +762,30 @@ input:focus {
   .toc-dots {
     display: none;
   }
+}
+
+/* Chinese: italics do not exist for CJK, and wide tracking breaks words apart. */
+:lang(zh) .subtitle,
+:lang(zh) .prompts,
+:lang(zh) .toc-intro,
+:lang(zh) .byline,
+:lang(zh) .field > span,
+:lang(zh) .prose h2,
+:lang(zh) .season-label span,
+:lang(zh) .seal-by,
+:lang(zh) .colophon p:first-child {
+  font-style: normal;
+}
+:lang(zh) .kicker,
+:lang(zh) .section-label,
+:lang(zh) .nav,
+:lang(zh) .entry-kind {
+  letter-spacing: 0.08em;
+}
+:lang(zh) .prompts {
+  font-size: 20px;
+}
+:lang(zh) body,
+:lang(zh) .prose {
+  line-height: 1.85;
 }

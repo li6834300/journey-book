@@ -44,11 +44,19 @@ export function splitSections(body: string): { intro: string; sections: Section[
   return { intro: intro.join('\n').trim(), sections }
 }
 
-/** Prompts first, in order, followed by any headings the file already had. */
-export function mergeWithPrompts(prompts: string[], existing: Section[]): Section[] {
-  const byHeading = new Map(existing.map((s) => [s.heading, s.text]))
-  const merged = prompts.map((heading) => ({ heading, text: byHeading.get(heading) ?? '' }))
-  for (const s of existing) if (!prompts.includes(s.heading)) merged.push(s)
+/**
+ * Prompts first, in order, followed by any headings the file already had.
+ * Each prompt is given as all its language versions, current language first;
+ * a heading already written in any of them keeps its original wording.
+ */
+export function mergeWithPrompts(prompts: string[][], existing: Section[]): Section[] {
+  const used = new Set<Section>()
+  const merged = prompts.map((versions) => {
+    const found = existing.find((s) => !used.has(s) && versions.includes(s.heading))
+    if (found) used.add(found)
+    return { heading: found?.heading ?? versions[0], text: found?.text ?? '' }
+  })
+  for (const s of existing) if (!used.has(s)) merged.push(s)
   return merged
 }
 
