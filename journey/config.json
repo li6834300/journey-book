@@ -1,0 +1,103 @@
+{
+  "title": "Our Journey",
+  "subtitle": "A book we are writing together, one reflection at a time.",
+  "began": "2026-10",
+  "repository": {
+    "owner": "li6834300",
+    "repo": "journey-book",
+    "branch": "main"
+  },
+  "people": [
+    { "id": "person-a", "name": "Person A", "github": "" },
+    { "id": "person-b", "name": "Person B", "github": "" }
+  ],
+  "stages": [
+    {
+      "id": "seeing",
+      "title": "Seeing",
+      "dir": "sessions/01-seeing",
+      "intro": "Before we change anything, we learn to look.",
+      "prompts": [
+        "What did I notice today?",
+        "What do I still not know?",
+        "What do I want to carry with me?"
+      ]
+    },
+    {
+      "id": "understanding",
+      "title": "Understanding",
+      "dir": "sessions/02-understanding",
+      "intro": "Looking again, more slowly, at what we saw.",
+      "prompts": [
+        "What did I come to understand about you?",
+        "What did I come to understand about myself?",
+        "Where did we misunderstand each other, and what was underneath?"
+      ]
+    },
+    {
+      "id": "voices-we-carry",
+      "title": "The Voices We Carry",
+      "dir": "sessions/03-voices-we-carry",
+      "intro": "The rules and voices we brought with us from before.",
+      "prompts": [
+        "Which voices from my childhood still speak when I decide?",
+        "Which rules did I inherit without choosing them?",
+        "Which voice do I want to keep, and which can I set down?"
+      ]
+    },
+    {
+      "id": "desire",
+      "title": "Desire",
+      "dir": "sessions/04-desire",
+      "intro": "Saying plainly what we want.",
+      "prompts": [
+        "What do I want, if I let myself say it plainly?",
+        "What do I want for us?",
+        "What am I afraid will happen if I want it out loud?"
+      ]
+    },
+    {
+      "id": "choosing",
+      "title": "Choosing",
+      "dir": "sessions/05-choosing",
+      "intro": "Every choice is also a letting go.",
+      "prompts": [
+        "What are we choosing?",
+        "What are we choosing not to do?",
+        "What will tell us whether it was the right choice?"
+      ]
+    },
+    {
+      "id": "living-experiment",
+      "title": "Living Experiment",
+      "dir": "sessions/06-living-experiment",
+      "intro": "Trying something small, and paying attention to what happens.",
+      "prompts": [
+        "What did we try?",
+        "What happened, honestly?",
+        "What will we keep, change, or let go?"
+      ]
+    },
+    {
+      "id": "growing",
+      "title": "Growing",
+      "dir": "final-journey",
+      "intro": "Looking back over the whole road.",
+      "prompts": [
+        "Who was I when we began?",
+        "What has changed between us?",
+        "What do I want to remember from this journey?"
+      ]
+    }
+  ],
+  "experimentPrompts": [
+    "What are we trying?",
+    "Why now?",
+    "What happened?",
+    "What did we learn?"
+  ],
+  "chapters": {
+    "2026-10": "The beginning",
+    "winter-2026": "Learning to notice"
+  }
+}
