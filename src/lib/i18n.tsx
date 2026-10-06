@@ -9,8 +9,6 @@ const en = {
   mode: { label: 'Mode', reading: 'Reading', writing: 'Our writing' },
   langSwitch: '中文',
   footer: {
-    motto: 'The website is the experience. The repository is the memory.',
-    repo: 'The whole journey, with its history',
     device: 'This device',
     writingMode: 'Our writing mode',
   },
@@ -178,8 +176,6 @@ const zh: Strings = {
   mode: { label: '模式', reading: '阅读', writing: '我们的书写' },
   langSwitch: 'EN',
   footer: {
-    motto: '网站是体验，仓库是记忆。',
-    repo: '完整的旅程，连同它的历史',
     device: '这台设备',
     writingMode: '我们的书写模式',
   },

@@ -758,13 +758,8 @@ input:focus {
   padding: 32px 16px 40px;
   border-top: 1px solid var(--rule);
 }
-.colophon p {
-  margin: 4px 0;
-}
-.colophon p:first-child {
-  font-family: var(--serif-display);
-  font-style: italic;
-  font-size: 17px;
+.colophon a {
+  color: var(--ink-faint);
 }
 
 @media (max-width: 560px) {
@@ -800,8 +795,7 @@ input:focus {
 :lang(zh) .field > span,
 :lang(zh) .prose h2,
 :lang(zh) .season-label span,
-:lang(zh) .seal-by,
-:lang(zh) .colophon p:first-child {
+:lang(zh) .seal-by {
   font-style: normal;
 }
 :lang(zh) h1,

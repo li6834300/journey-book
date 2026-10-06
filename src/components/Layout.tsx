@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { config, repoUrl } from '../lib/config'
+import { config } from '../lib/config'
 import { useI18n } from '../lib/i18n'
 import { useSession } from '../lib/session'
 
@@ -51,14 +51,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="colophon">
-        <p>{t.footer.motto}</p>
-        <p>
-          <a href={repoUrl} target="_blank" rel="noreferrer">
-            {t.footer.repo}
-          </a>
-          <span aria-hidden> · </span>
-          <Link to="/connect">{token ? t.footer.device : t.footer.writingMode}</Link>
-        </p>
+        <Link to="/connect">{token ? t.footer.device : t.footer.writingMode}</Link>
       </footer>
     </div>
   )
